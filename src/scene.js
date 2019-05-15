@@ -56,7 +56,7 @@ function makeScene(canvas, options) {
 
   renderFrame();
 
-  return api;
+  return {api, panzoom};;
 
   function getPixelRatio() {
     return pixelRatio;
