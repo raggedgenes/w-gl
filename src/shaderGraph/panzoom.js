@@ -2,6 +2,8 @@ export default {
   globals() {
     return `
 attribute vec2 aPosition;
+attribute vec4 aColor;
+varying vec4 vColor;
 uniform vec2 uScreenSize;
 uniform mat4 uTransform;
 `;
@@ -16,6 +18,8 @@ uniform mat4 uTransform;
   transformed[3][1] = 1.0 - vv.y;
   vec2 xy = 2.0 * aPosition/uScreenSize;
   gl_Position = transformed * vec4(xy.x, -xy.y, 0.0, 1.0);
+  
+  vColor = aColor;
 `
   }
 }

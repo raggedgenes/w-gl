@@ -11,10 +11,11 @@ const lineVSSrc = shaderGraph.getVSCode([
 
 const lineFSSrc = `
 precision highp float;
-uniform vec4 uColor;
+varying vec4 vColor;
 
 void main() {
-  gl_FragColor = uColor;
+  gl_FragColor = vec4(vColor.rgb, 1.0);
+  //gl_FragColor = vColor;
 }
 `;
 
@@ -52,21 +53,28 @@ function makeLineProgram(gl, data, drawTriangles) {
     lineProgramCache.delete(gl);
   }
 
-  function draw(transform, color, screen) {
+  function draw(transform, count, screen) {
     if (data.length === 0) return;
 
     gl.useProgram(lineProgram);
 
     gl.uniformMatrix4fv(locations.uniforms.uTransform, false, transform.getArray());
     gl.uniform2f(locations.uniforms.uScreenSize, screen.width, screen.height);
-    gl.uniform4f(locations.uniforms.uColor, color.r, color.g, color.b, color.a);
+    //gl.uniform4f(locations.uniforms.uColor, color.r, color.g, color.b, color.a);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
-    gl.enableVertexAttribArray(locations.attributes.aPosition)
-    // TODO: Avoid buffering, if data hasn't changed?
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(locations.attributes.aPosition, 2, gl.FLOAT, false, bpe * 2, 0)
 
-    gl.drawArrays(drawType, 0, data.length / 2);
+    // TODO: Avoid buffering, if data hasn't changed?
+    gl.enableVertexAttribArray(locations.attributes.aPosition)
+    gl.enableVertexAttribArray(locations.attributes.aColor)
+
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(locations.attributes.aPosition, 2, gl.FLOAT, false, bpe * 5, 0)
+
+    // gl.vertexAttribPointer(locations.attributes.aPosition, 2, gl.FLOAT, false, bpe * 8, 2 * bpe)
+    // gl.enableVertexAttribArray(locations.attributes.aPosition)
+    gl.vertexAttribPointer(locations.attributes.aColor, 3, gl.FLOAT, false, bpe * 5, 2 * bpe)
+
+    gl.drawArrays(drawType, 0, 2*count);
   }
 }

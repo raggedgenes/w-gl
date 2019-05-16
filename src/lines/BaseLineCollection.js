@@ -19,7 +19,7 @@ class BaseLineCollection extends Element {
     }
     let transform = this.worldTransform;
 
-    this._program.draw(transform, this.color, screen);
+    this._program.draw(transform, this.count, screen);
   }
 
   _makeProgram() {
@@ -29,7 +29,10 @@ class BaseLineCollection extends Element {
   _addInternal() {
     throw new Error('Not implemented');
   }
-
+/**
+* Adding a new line.
+* @param line consist of fromId, toId, color of the from {r,g,b,a}
+**/
   add(line) {
     if (!line) throw new Error('Line is required');
 
