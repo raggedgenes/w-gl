@@ -15,7 +15,7 @@ function makeScene(canvas, options) {
 
   var wglContextOptions = options.wglContext;
 
-  var gl = canvas.getContext('webgl', wglContextOptions) || canvas.getContext('experimental-webgl', wglContextOptions);
+  var gl = canvas.getContext('webgl2', wglContextOptions);
 
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.BLEND);
@@ -35,17 +35,20 @@ function makeScene(canvas, options) {
     removeChild,
     setViewBox,
     setClearColor,
+	clear,
     dispose,
     renderFrame,
 
     getPixelRatio,
-    setPixelRatio
+    setPixelRatio,
+	getPanzoom
   });
 
   var wglController = wglPanZoom(canvas, sceneRoot, api);
+  canvas.style.outline = 'none';
+  canvas.setAttribute('tabindex', 0);
 
   var panzoom = makePanzoom(canvas, {
-    zoomSpeed: 0.025,
     controller: wglController 
   });
 
@@ -70,7 +73,11 @@ function makeScene(canvas, options) {
   function getRoot() {
     return sceneRoot;
   }
-
+  
+  function getPanzoom() {
+    return panzoom;
+  }
+  
   function getTransform() {
     return sceneRoot.transform;
   }
@@ -81,8 +88,9 @@ function makeScene(canvas, options) {
 
   function listenToEvents() {
     canvas.addEventListener('mousemove', onMouseMove);
-    canvas.addEventListener('transform', onTransform);
+    // canvas.addEventListener('transform', onTransform);
 
+	panzoom.on('transform', onTransform);
     disposeClick = onClap(canvas, onMouseClick, this);
 
     window.addEventListener('resize', onResize, true);
@@ -90,7 +98,10 @@ function makeScene(canvas, options) {
 
   function dispose() {
     canvas.removeEventListener('mousemove', onMouseMove);
-    canvas.removeEventListener('transform', onTransform);
+    // canvas.removeEventListener('transform', onTransform);
+	
+	panzoom.off('transform', onTransform);
+	
     if (disposeClick) disposeClick();
 
     window.removeEventListener('resize', onResize, true);
@@ -176,7 +187,10 @@ function makeScene(canvas, options) {
     wglController.applyTransform(newT);
   }
 
-  function renderFrame() {
+  function renderFrame(immediate) {
+    if (immediate) {
+      return frame();
+    }
     if (!frameToken) frameToken = requestAnimationFrame(frame)
   }
 
@@ -186,7 +200,10 @@ function makeScene(canvas, options) {
     sceneRoot.draw(gl, drawContext);
     frameToken = 0;
   }
-
+  function clear() {
+    gl.clear(gl.COLOR_BUFFER_BIT)
+  }
+  
   function appendChild(child, sendToBack) {
     sceneRoot.appendChild(child, sendToBack);
   }
