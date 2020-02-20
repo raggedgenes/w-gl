@@ -28,19 +28,13 @@
     "rollup": "^1.31.0"
   },
   "dependencies": {
-<<<<<<< HEAD
-<<<<<<< HEAD
     "ngraph.events": "0.0.4",
-=======
     "ngraph.events": "1.2.1",
->>>>>>> refs/remotes/anvaka/master
     "panzoom": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.0.0"
-=======
     "gl-matrix": "^3.1.0",
     "ngraph.events": "1.2.1",
     "ngraph.graph": "^19.0.3",
     "panzoom": "^9.1.0"
->>>>>>> 243efc3d94c429e7fec3ebe18e91ab66fe480494
   }
 }
