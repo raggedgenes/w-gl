@@ -8,7 +8,7 @@ import WireAccessor from './WireAccessor';
  */
 class WireCollection extends BaseLineCollection {
   constructor(capacity) {
-    super(capacity, 4); // items per wire
+    super(capacity, 10); // items per wire
 
     this.type = 'WireCollection';
   }
@@ -18,8 +18,8 @@ class WireCollection extends BaseLineCollection {
   }
 
   _addInternal(line, offset) {
-    let lineUI = new WireAccessor(this.buffer, offset);
-    lineUI.update(line.from, line.to)
+    let lineUI = new WireAccessor(this.buffer, offset, line.color);
+    lineUI.update(line.from, line.to);
     return lineUI;
   }
 }
