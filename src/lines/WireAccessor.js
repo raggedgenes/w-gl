@@ -3,6 +3,8 @@
  * 
  * Wires are "lines" with 1.0 width.
  */
+ 
+import Color from '../Color';
 class WireAccessor {
   constructor(buffer, offset, color) {
     this.offset = offset;
