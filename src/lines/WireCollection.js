@@ -7,11 +7,6 @@ import Color from '../Color';
  * Unlike lines, wires do not have width, and are always 1px wide, regardless
  * of resolution.
  */
-<<<<<<< HEAD
-class WireCollection extends BaseLineCollection {
-  constructor(capacity) {
-    super(capacity, 10); // items per wire
-=======
 class WireCollection extends Element {
   constructor(capacity, options) {
     super();
@@ -21,7 +16,6 @@ class WireCollection extends Element {
     this.itemsPerLine = 4; // (startX, startY) (endX, endY);
     if (this.is3D) this.itemsPerLine += 2; // Add two more for Z;
     if (this.allowColors) this.itemsPerLine += 2; // Add two more for color
->>>>>>> 243efc3d94c429e7fec3ebe18e91ab66fe480494
 
     this.capacity = capacity;
     this.count = 0;
@@ -117,12 +111,6 @@ class WireCollection extends Element {
     }
   }
 
-<<<<<<< HEAD
-  _addInternal(line, offset) {
-    let lineUI = new WireAccessor(this.buffer, offset, line.color);
-    lineUI.update(line.from, line.to);
-    return lineUI;
-=======
   _extendArray() {
     // Every time we run out of space create new array twice bigger.
     var buffer = new ArrayBuffer(this.buffer.byteLength * 2);
@@ -137,7 +125,6 @@ class WireCollection extends Element {
       this.colors = new Uint32Array(buffer);
     }
     this.capacity *= 2;
->>>>>>> 243efc3d94c429e7fec3ebe18e91ab66fe480494
   }
 }
 

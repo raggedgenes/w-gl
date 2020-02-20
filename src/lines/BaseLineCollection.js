@@ -17,13 +17,7 @@ class BaseLineCollection extends Element {
     if (!this._program) {
       this._program = this._makeProgram(gl);
     }
-<<<<<<< HEAD
-    let transform = this.worldTransform;
-
-    this._program.draw(transform, this.count, screen);
-=======
     this._program.draw(this, drawContext);
->>>>>>> 243efc3d94c429e7fec3ebe18e91ab66fe480494
   }
 
   _makeProgram() {
@@ -33,10 +27,7 @@ class BaseLineCollection extends Element {
   _addInternal() {
     throw new Error('Not implemented');
   }
-/**
-* Adding a new line.
-* @param line consist of fromId, toId, color of the from {r,g,b,a}
-**/
+
   add(line) {
     if (!line) throw new Error('Line is required');
 

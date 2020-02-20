@@ -14,7 +14,7 @@ export default function makeScene(canvas, options) {
 
   var wglContextOptions = options.wglContext;
 
-  var gl = canvas.getContext('webgl2', wglContextOptions);
+  var gl = canvas.getContext('webgl', wglContextOptions) || canvas.getContext('experimental-webgl', wglContextOptions);
 
   gl.enable(gl.BLEND);
   gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -48,51 +48,22 @@ export default function makeScene(canvas, options) {
     getClientCoordinate,
     getTransform,
     getRoot,
-<<<<<<< HEAD
-	getGL,
-    removeChild,
-    setViewBox,
-    setClearColor,
-	clear,
-=======
     getGL,
     removeChild,
     setViewBox,
     setClearColor,
     getClearColor,
     clear,
->>>>>>> refs/remotes/anvaka/master
     dispose,
     renderFrame,
 
     getPixelRatio,
     setPixelRatio,
-<<<<<<< HEAD
-	getPanzoom
-=======
 
-<<<<<<< HEAD
-    getPanzoom
->>>>>>> refs/remotes/anvaka/master
-  });
-
-  var wglController = wglPanZoom(canvas, sceneRoot, api);
-  canvas.style.outline = 'none';
-  canvas.setAttribute('tabindex', 0);
-
-  var panzoom = makePanzoom(canvas, {
-<<<<<<< HEAD
-    controller: wglController 
-=======
-    controller: wglController
->>>>>>> refs/remotes/anvaka/master
-  });
-=======
     getCamera,
     getDrawContext
   });
 
->>>>>>> 243efc3d94c429e7fec3ebe18e91ab66fe480494
 
   sceneRoot.bindScene(api);
   let cameraController = createMapCamera(api, drawContext);
@@ -117,20 +88,6 @@ export default function makeScene(canvas, options) {
     pixelRatio = newPixelRatio;
     updateCanvasSize();
   }
-<<<<<<< HEAD
-  function getGL() {
-    return gl;
-  }
-  
-  function getRoot() {
-    return sceneRoot;
-  }
-  
-  function getPanzoom() {
-    return panzoom;
-  }
-  
-=======
 
   function getGL() {
     return gl;
@@ -144,7 +101,6 @@ export default function makeScene(canvas, options) {
     return cameraController;
   }
 
->>>>>>> refs/remotes/anvaka/master
   function getTransform() {
     return sceneRoot.model;
   }
@@ -160,17 +116,7 @@ export default function makeScene(canvas, options) {
 
   function listenToEvents() {
     canvas.addEventListener('mousemove', onMouseMove);
-<<<<<<< HEAD
-    // canvas.addEventListener('transform', onTransform);
-=======
 
-<<<<<<< HEAD
-    panzoom.on('transform', onTransform);
->>>>>>> refs/remotes/anvaka/master
-
-	panzoom.on('transform', onTransform);
-=======
->>>>>>> 243efc3d94c429e7fec3ebe18e91ab66fe480494
     disposeClick = onClap(canvas, onMouseClick, this);
 
     window.addEventListener('resize', onResize, true);
@@ -178,15 +124,8 @@ export default function makeScene(canvas, options) {
 
   function dispose() {
     canvas.removeEventListener('mousemove', onMouseMove);
-<<<<<<< HEAD
-    // canvas.removeEventListener('transform', onTransform);
-	
-	panzoom.off('transform', onTransform);
-	
-=======
 
 
->>>>>>> refs/remotes/anvaka/master
     if (disposeClick) disposeClick();
 
     window.removeEventListener('resize', onResize, true);
@@ -282,10 +221,7 @@ export default function makeScene(canvas, options) {
     if (immediate) {
       return frame();
     }
-<<<<<<< HEAD
-=======
 
->>>>>>> refs/remotes/anvaka/master
     if (!frameToken) frameToken = requestAnimationFrame(frame)
   }
 
@@ -295,18 +231,11 @@ export default function makeScene(canvas, options) {
     sceneRoot.draw(gl, drawContext);
     frameToken = 0;
   }
-<<<<<<< HEAD
-  function clear() {
-    gl.clear(gl.COLOR_BUFFER_BIT)
-  }
-  
-=======
 
   function clear() {
     gl.clear(gl.COLOR_BUFFER_BIT)
   }
 
->>>>>>> refs/remotes/anvaka/master
   function appendChild(child, sendToBack) {
     sceneRoot.appendChild(child, sendToBack);
   }
