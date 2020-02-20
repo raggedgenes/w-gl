@@ -1,6 +1,6 @@
 {
   "name": "w-gl",
-  "version": "0.3.1",
+  "version": "0.7.4",
   "description": "A simple renderer for 2d",
   "main": "build/wgl.js",
   "module": "build/wgl.module.js",
@@ -27,7 +27,11 @@
     "rollup-plugin-commonjs": "^8.2.1"
   },
   "dependencies": {
+<<<<<<< HEAD
     "ngraph.events": "0.0.4",
+=======
+    "ngraph.events": "1.2.1",
+>>>>>>> refs/remotes/anvaka/master
     "panzoom": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.0.0"
   }

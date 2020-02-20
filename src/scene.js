@@ -17,7 +17,7 @@ function makeScene(canvas, options) {
 
   var gl = canvas.getContext('webgl2', wglContextOptions);
 
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.BLEND);
   gl.clearColor(0, 0, 0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT)
@@ -32,17 +32,30 @@ function makeScene(canvas, options) {
     getClientCoordinate,
     getTransform,
     getRoot,
+<<<<<<< HEAD
 	getGL,
     removeChild,
     setViewBox,
     setClearColor,
 	clear,
+=======
+    getGL,
+    removeChild,
+    setViewBox,
+    setClearColor,
+    clear,
+>>>>>>> refs/remotes/anvaka/master
     dispose,
     renderFrame,
 
     getPixelRatio,
     setPixelRatio,
+<<<<<<< HEAD
 	getPanzoom
+=======
+
+    getPanzoom
+>>>>>>> refs/remotes/anvaka/master
   });
 
   var wglController = wglPanZoom(canvas, sceneRoot, api);
@@ -50,7 +63,11 @@ function makeScene(canvas, options) {
   canvas.setAttribute('tabindex', 0);
 
   var panzoom = makePanzoom(canvas, {
+<<<<<<< HEAD
     controller: wglController 
+=======
+    controller: wglController
+>>>>>>> refs/remotes/anvaka/master
   });
 
   sceneRoot.bindScene(api);
@@ -70,6 +87,7 @@ function makeScene(canvas, options) {
     pixelRatio = newPixelRatio;
     updateCanvasSize();
   }
+<<<<<<< HEAD
   function getGL() {
     return gl;
   }
@@ -82,6 +100,21 @@ function makeScene(canvas, options) {
     return panzoom;
   }
   
+=======
+
+  function getGL() {
+    return gl;
+  }
+
+  function getRoot() {
+    return sceneRoot;
+  }
+
+  function getPanzoom() {
+    return panzoom;
+  }
+
+>>>>>>> refs/remotes/anvaka/master
   function getTransform() {
     return sceneRoot.transform;
   }
@@ -92,7 +125,12 @@ function makeScene(canvas, options) {
 
   function listenToEvents() {
     canvas.addEventListener('mousemove', onMouseMove);
+<<<<<<< HEAD
     // canvas.addEventListener('transform', onTransform);
+=======
+
+    panzoom.on('transform', onTransform);
+>>>>>>> refs/remotes/anvaka/master
 
 	panzoom.on('transform', onTransform);
     disposeClick = onClap(canvas, onMouseClick, this);
@@ -102,10 +140,16 @@ function makeScene(canvas, options) {
 
   function dispose() {
     canvas.removeEventListener('mousemove', onMouseMove);
+<<<<<<< HEAD
     // canvas.removeEventListener('transform', onTransform);
 	
 	panzoom.off('transform', onTransform);
 	
+=======
+
+    panzoom.off('transform', onTransform);
+
+>>>>>>> refs/remotes/anvaka/master
     if (disposeClick) disposeClick();
 
     window.removeEventListener('resize', onResize, true);
@@ -195,6 +239,10 @@ function makeScene(canvas, options) {
     if (immediate) {
       return frame();
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/anvaka/master
     if (!frameToken) frameToken = requestAnimationFrame(frame)
   }
 
@@ -204,10 +252,18 @@ function makeScene(canvas, options) {
     sceneRoot.draw(gl, drawContext);
     frameToken = 0;
   }
+<<<<<<< HEAD
   function clear() {
     gl.clear(gl.COLOR_BUFFER_BIT)
   }
   
+=======
+
+  function clear() {
+    gl.clear(gl.COLOR_BUFFER_BIT)
+  }
+
+>>>>>>> refs/remotes/anvaka/master
   function appendChild(child, sendToBack) {
     sceneRoot.appendChild(child, sendToBack);
   }
