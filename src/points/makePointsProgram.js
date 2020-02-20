@@ -16,8 +16,12 @@ varying vec4 vColor;
 uniform sampler2D texture;
 
 void main() {
-  vec4 tColor = texture2D(texture, gl_PointCoord);
+  vec4 tColor = texture2D( texture, gl_PointCoord );
   gl_FragColor = vec4(vColor.rgb, tColor.a);
+  //gl_FragColor = vec4(vColor.rgb, 1.0);
+  // vec2 t = 2.0 * gl_PointCoord - 1.0;
+  // float a = 1.0 - pow(t.x, 2.0) - pow(t.y, 2.0);
+  // gl_FragColor = vec4(vColor.rgb, a);
 }
 `;
 
@@ -61,34 +65,29 @@ function makePointsProgram(gl, data) {
     vertexProgramCache.delete(gl);
   }
 
-  function draw(pointCollection, drawContext) {
+  function draw(transform, screen, count) {
     gl.useProgram(vertexProgram);
 
     var bpe = data.BYTES_PER_ELEMENT;
 
-    gl.uniformMatrix4fv(locations.uniforms.uModel, false, pointCollection.worldModel);
-    gl.uniformMatrix4fv(locations.uniforms.uCamera, false, drawContext.camera);
-    gl.uniformMatrix4fv(locations.uniforms.uView, false, drawContext.view);
-    gl.uniform3fv(locations.uniforms.uOrigin, drawContext.origin);
-
+    if (transform) {
+      gl.uniformMatrix4fv(locations.uniforms.uTransform, false, transform.getArray());
+    }
+    gl.uniform2f(locations.uniforms.uScreenSize, screen.width, screen.height);
     gl.bindTexture(gl.TEXTURE_2D, pointTexture);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
 
-    var positionSize = pointCollection.is3D ? 3 : 2;
-    var itemsPerPoint = bpe * pointCollection.itemsPerPoint;
+    gl.vertexAttribPointer(locations.attributes.aPosition, 2, gl.FLOAT, false, bpe * 6, 0)
     gl.enableVertexAttribArray(locations.attributes.aPosition)
-    gl.vertexAttribPointer(locations.attributes.aPosition, positionSize, gl.FLOAT, false, itemsPerPoint, 0)
 
-    var offset = positionSize;
+    gl.vertexAttribPointer(locations.attributes.aPointSize, 1, gl.FLOAT, false, bpe * 6, 2 * bpe)
     gl.enableVertexAttribArray(locations.attributes.aPointSize)
-    gl.vertexAttribPointer(locations.attributes.aPointSize, 1, gl.FLOAT, false, itemsPerPoint, offset * bpe)
-    offset += 1;
 
+    gl.vertexAttribPointer(locations.attributes.aColor, 3, gl.FLOAT, false, bpe * 6, 3 * bpe)
     gl.enableVertexAttribArray(locations.attributes.aColor);
-    gl.vertexAttribPointer(locations.attributes.aColor, 3, gl.FLOAT, false, itemsPerPoint, offset * bpe)
-    gl.drawArrays(gl.POINTS, 0, pointCollection.count);
+    gl.drawArrays(gl.POINTS, 0, count);
   }
 }
 
@@ -128,6 +127,8 @@ function createCircleTexture(gl) {
       }
     }
     return blur(result, size)
+
+    //return result
   }
 }
 

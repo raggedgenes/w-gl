@@ -1,33 +1,23 @@
 import utils from '../glUtils';
 import shaderGraph from '../shaderGraph/index.js';
-import createMultiKeyCache from './createMultiKeyCache';
 
 export default makeLineProgram;
 
-let lineProgramCache = createMultiKeyCache();
+let lineProgramCache = new Map();
 
-function makeLineProgram(gl, lineStripCollection) {
-  let {allowColors, is3D} = lineStripCollection;
-  allowColors = !!allowColors; // coerce to boolean.
-
-  const programKey = [allowColors, gl];
-  let lineProgram = lineProgramCache.get(programKey);
-  const itemsPerVertex = 2 + (allowColors ? 1 : 0) + (is3D ? 1 : 0);
-
-  let data = lineStripCollection.buffer;
-
+function makeLineProgram(gl, data, allowColors) {
+  // TODO: Cache on allow colors too
+  let lineProgram = lineProgramCache.get(gl);
+  const itemsPerVertex = allowColors ? 3 : 2;
   if (!lineProgram) {
     const { lineFSSrc, lineVSSrc } = getShadersCode(allowColors);
     var lineVSShader = utils.compile(gl, gl.VERTEX_SHADER, lineVSSrc);
     var lineFSShader = utils.compile(gl, gl.FRAGMENT_SHADER, lineFSSrc);
     lineProgram = utils.link(gl, lineVSShader, lineFSShader);
-    lineProgramCache.set(programKey, lineProgram);
+    lineProgramCache.set(gl, lineProgram);
   }
 
   var locations = utils.getLocations(gl, lineProgram);
-  let lineSize = is3D ? 3 : 2;
-  let coloredLineStride = (lineSize + 1) * 4;
-  let colorOffset = lineSize * 4;
 
   var lineBuffer = gl.createBuffer();
 
@@ -41,21 +31,17 @@ function makeLineProgram(gl, lineStripCollection) {
   function dispose() {
     gl.deleteBuffer(lineBuffer);
     gl.deleteProgram(lineProgram);
-    lineProgramCache.remove(programKey);
+    lineProgramCache.delete(gl);
   }
 
-  function draw(lineStripCollection, drawContext) {
-    // TODO: Why lineStripCollection passed second time?
+  function draw(transform, color, screen, startFrom, madeFullCircle) {
     if (data.length === 0) return;
 
     gl.useProgram(lineProgram);
 
-    gl.uniformMatrix4fv(locations.uniforms.uModel, false, lineStripCollection.worldModel);
-    gl.uniformMatrix4fv(locations.uniforms.uCamera, false, drawContext.camera);
-    gl.uniformMatrix4fv(locations.uniforms.uView, false, drawContext.view);
-    gl.uniform3fv(locations.uniforms.uOrigin, drawContext.origin);
-
-    let {color, nextElementIndex, madeFullCircle} = lineStripCollection;
+    const transformArray = transform.getArray();
+    gl.uniformMatrix4fv(locations.uniforms.uTransform, false, transformArray);
+    gl.uniform2f(locations.uniforms.uScreenSize, screen.width, screen.height);
     gl.uniform4f(locations.uniforms.uColor, color.r, color.g, color.b, color.a);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
@@ -64,26 +50,25 @@ function makeLineProgram(gl, lineStripCollection) {
     if (allowColors) {
       gl.vertexAttribPointer(
         locations.attributes.aPosition,
-        lineSize,
+        2,
         gl.FLOAT,
         false,
-        coloredLineStride,
+        3 * 4,
         0
       );
-
       gl.enableVertexAttribArray(locations.attributes.aColor);
       gl.vertexAttribPointer(
         locations.attributes.aColor,
         4,
         gl.UNSIGNED_BYTE,
         true,
-        coloredLineStride,
-        colorOffset
+        3 * 4,
+        2 * 4
       );
     } else {
       gl.vertexAttribPointer(
         locations.attributes.aPosition,
-        lineSize,
+        2,
         gl.FLOAT,
         false,
         0,
@@ -92,11 +77,11 @@ function makeLineProgram(gl, lineStripCollection) {
     }
 
     if (madeFullCircle) {
-      let elementsCount = data.byteLength / 4 / itemsPerVertex - nextElementIndex;
-      gl.drawArrays(gl.LINE_STRIP, nextElementIndex, elementsCount);
-      if (nextElementIndex > 1) gl.drawArrays(gl.LINE_STRIP, 0, nextElementIndex - 1);
+      let elementsCount = data.byteLength / 4 / itemsPerVertex - startFrom;
+      gl.drawArrays(gl.LINE_STRIP, startFrom, elementsCount);
+      if (startFrom > 1) gl.drawArrays(gl.LINE_STRIP, 0, startFrom - 1);
     } else {
-      gl.drawArrays(gl.LINE_STRIP, 1, nextElementIndex - 1);
+      gl.drawArrays(gl.LINE_STRIP, 1, startFrom - 1);
     }
   }
 }
@@ -112,18 +97,24 @@ void main() {
     {
       globals() {
         return `
-  attribute vec3 aPosition;
+  attribute vec2 aPosition;
   varying vec4 vColor;
   ${allowColors ? 'attribute vec4 aColor;' : ''}
   uniform vec4 uColor;
-  uniform mat4 uCamera;
-  uniform mat4 uModel;
-  uniform mat4 uView;
+  uniform vec2 uScreenSize;
+  uniform mat4 uTransform;
 `;
       },
       mainBody() {
         return `
-  gl_Position = uCamera * uView * uModel * vec4(aPosition, 1.0);
+  mat4 transformed = mat4(uTransform);
+
+  // Translate screen coordinates to webgl space
+  vec2 vv = 2.0 * uTransform[3].xy/uScreenSize;
+  transformed[3][0] = vv.x - 1.0;
+  transformed[3][1] = 1.0 - vv.y;
+  vec2 xy = 2.0 * aPosition.xy/uScreenSize;
+  gl_Position = transformed * vec4(xy.x, -xy.y, 0.0, 1.0);
   vColor = ${allowColors ? 'aColor.abgr' : 'uColor'};
 `;
       }

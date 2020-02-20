@@ -1,11 +1,10 @@
 import Color from '../Color';
 
 class PointAccessor {
-  constructor(buffer, offset, color, data, is3D) {
+  constructor(buffer, offset, color, data) {
     this.offset = offset;
     this.buffer = buffer;
     this.color = color || new Color(1, 1, 1, 1); 
-    this.is3D = is3D;
     if (data !== undefined) {
       this.data = data;
     }
@@ -19,22 +18,14 @@ class PointAccessor {
     return this.buffer[this.offset + 1];
   }
 
-  get z() {
-    return this.buffer[this.offset + 2];
-  }
-
   update(point, defaults) {
     var offset = this.offset;
     var points = this.buffer;
 
-    points[offset] = point.x; offset++;
-    points[offset] = point.y; offset++;
-    if (this.is3D) {
-      points[offset] = point.z || 0; offset++;
-    }
+    points[offset + 0] = point.x;
+    points[offset + 1] = point.y;
     if (point.size || defaults) {
-      points[offset] = typeof point.size === 'number' ? point.size : defaults.size;
-      offset++;
+      points[offset + 2] = typeof point.size === 'number' ? point.size : defaults.size;
     }
 
     this.setColor(this.color);
@@ -42,11 +33,10 @@ class PointAccessor {
 
   setColor(color) {
     this.color = color;
-    var from = this.is3D ? this.offset + 4 : this.offset + 3;
     // TODO: This is waste, we can store rgba in 32 bits, not in the 3 * 3 * 8 bits?
-    this.buffer[from + 0] = color.r
-    this.buffer[from + 1] = color.g
-    this.buffer[from + 2] = color.b
+    this.buffer[this.offset + 3] = color.r
+    this.buffer[this.offset + 4] = color.g
+    this.buffer[this.offset + 5] = color.b
   }
 }
 

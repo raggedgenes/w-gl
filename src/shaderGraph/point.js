@@ -8,8 +8,7 @@ varying vec4 vColor;
   },
   mainBody() {
     return `
-    float cameraDist = length( mvPosition.xyz - uOrigin );
-  gl_PointSize = max(aPointSize * 128./cameraDist, 2.);
+  gl_PointSize = aPointSize * transformed[0][0];
   vColor = aColor;
 `;
   }
