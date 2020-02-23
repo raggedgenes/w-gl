@@ -6,34 +6,27 @@
  
 import Color from '../Color';
 class WireAccessor {
-  constructor(buffer, offset, color) {
+  constructor(wireCollection, offset) {
     this.offset = offset;
-    this.buffer = buffer;
-    this.color = color || new Color(1, 1, 1, 1); 
+    this._wire = wireCollection;
   }
 
   update(from, to) {
-    var buffer = this.buffer;
+    // var buffer = this.buffer;
     var offset = this.offset;
 
-    buffer[offset + 0] = from.x
-    buffer[offset + 1] = from.y
+    this._wire.positions[offset + 0] = from.x
+    this._wire.positions[offset + 1] = from.y
+    this._wire.positions[offset + 3] = to.x
+    this._wire.positions[offset + 4] = to.y
+   
 
-    buffer[offset + 5] = to.x
-    buffer[offset + 6] = to.y
-
-    this.setColor(this.color);
+    if (from.color != null && to.color !== null) this.setColor(from.color, to.color);
   }
-  setColor(color) {
-    this.color = color;
-    var buffer = this.buffer;
-    var offset = this.offset;
-    buffer[offset + 2] = color.r
-    buffer[offset + 3] = color.g
-    buffer[offset + 4] = color.b
-    buffer[offset + 7] = color.r
-    buffer[offset + 8] = color.g
-    buffer[offset + 9] = color.b
+  setColor(fromC, toC) {
+    const offset = this.offset;
+    this._wire.colors[offset + 2] = fromC;
+    this._wire.colors[offset + 5] = toC;
   }
 }
 

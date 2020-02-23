@@ -8,17 +8,17 @@ import WireAccessor from './WireAccessor';
  */
 class WireCollection extends BaseLineCollection {
   constructor(capacity) {
-    super(capacity, 10); // items per wire
+    super(capacity, 6); // items per wire
 
     this.type = 'WireCollection';
   }
 
   _makeProgram(gl) {
-    return makeLinesProgram(gl, this.buffer, /* drawTriangles = */ false);
+    return makeLinesProgram(gl, this, /* drawTriangles = */ false);
   }
 
   _addInternal(line, offset) {
-    let lineUI = new WireAccessor(this.buffer, offset, line.color);
+    let lineUI = new WireAccessor(this, offset);
     lineUI.update(line.from, line.to);
     return lineUI;
   }

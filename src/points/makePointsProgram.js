@@ -17,17 +17,15 @@ uniform sampler2D texture;
 
 void main() {
   vec4 tColor = texture2D( texture, gl_PointCoord );
-  gl_FragColor = vec4(vColor.rgb, tColor.a);
-  //gl_FragColor = vec4(vColor.rgb, 1.0);
-  // vec2 t = 2.0 * gl_PointCoord - 1.0;
-  // float a = 1.0 - pow(t.x, 2.0) - pow(t.y, 2.0);
-  // gl_FragColor = vec4(vColor.rgb, a);
+  gl_FragColor = vColor;
+  gl_FragColor.a = tColor.a;
+  // gl_FragColor = vec4(vColor.bbb, tColor.a);
 }
 `;
 
 let vertexProgramCache = new Map(); // maps from GL context to program
 
-function makePointsProgram(gl, data) {
+function makePointsProgram(gl, pointCollection) {
   let vertexProgram = vertexProgramCache.get(gl)
   if (!vertexProgram) {
     let vertexShader = gl_utils.compile(gl, gl.VERTEX_SHADER, vertexShaderSrc);
@@ -40,9 +38,9 @@ function makePointsProgram(gl, data) {
 
   var buffer = gl.createBuffer();
   if (!buffer) throw new Error('failed to create a nodesBuffer');
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, data.byteLength, gl.DYNAMIC_DRAW);
-
+  // gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  // gl.bufferData(gl.ARRAY_BUFFER, pointCollection.buffer.byteLength, gl.DYNAMIC_DRAW);
+  
   var pointTexture = createCircleTexture(gl);
 
   var api = {
@@ -67,9 +65,8 @@ function makePointsProgram(gl, data) {
 
   function draw(transform, screen, count) {
     gl.useProgram(vertexProgram);
-
-    var bpe = data.BYTES_PER_ELEMENT;
-
+    let data = pointCollection.buffer;
+    const bpe = 4;
     if (transform) {
       gl.uniformMatrix4fv(locations.uniforms.uTransform, false, transform.getArray());
     }
@@ -79,13 +76,13 @@ function makePointsProgram(gl, data) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
 
-    gl.vertexAttribPointer(locations.attributes.aPosition, 2, gl.FLOAT, false, bpe * 6, 0)
+    gl.vertexAttribPointer(locations.attributes.aPosition, 2, gl.FLOAT, false, bpe * 4, 0)
     gl.enableVertexAttribArray(locations.attributes.aPosition)
 
-    gl.vertexAttribPointer(locations.attributes.aPointSize, 1, gl.FLOAT, false, bpe * 6, 2 * bpe)
+    gl.vertexAttribPointer(locations.attributes.aPointSize, 1, gl.FLOAT, false, bpe * 4, 2 * bpe)
     gl.enableVertexAttribArray(locations.attributes.aPointSize)
 
-    gl.vertexAttribPointer(locations.attributes.aColor, 3, gl.FLOAT, false, bpe * 6, 3 * bpe)
+    gl.vertexAttribPointer(locations.attributes.aColor, 4, gl.UNSIGNED_BYTE, true, bpe * 4, 3 * bpe)
     gl.enableVertexAttribArray(locations.attributes.aColor);
     gl.drawArrays(gl.POINTS, 0, count);
   }

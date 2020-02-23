@@ -9,8 +9,10 @@ class BaseLineCollection extends Element {
     this.capacity = capacity;
     this.count = 0;
     this._program = null;
-    this.color = new Color(1, 1, 1, 1);
-    this.buffer = new Float32Array(capacity * this.itemsPerLine);
+    const bytesPerElement = 4;
+    this.buffer = new ArrayBuffer(capacity * this.itemsPerLine * bytesPerElement)
+    this.positions = new Float32Array(this.buffer);
+    this.colors = new Uint32Array(this.buffer);
   }
 
   draw(gl, screen) {

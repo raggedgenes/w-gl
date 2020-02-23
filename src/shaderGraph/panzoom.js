@@ -19,7 +19,7 @@ uniform mat4 uTransform;
   vec2 xy = 2.0 * aPosition/uScreenSize;
   gl_Position = transformed * vec4(xy.x, -xy.y, 0.0, 1.0);
   
-   vColor = aColor;
+    vColor = aColor.abgr;
 `
   }
 }

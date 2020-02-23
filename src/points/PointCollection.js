@@ -1,6 +1,6 @@
-var ITEMS_PER_POINT = 6;  // x, y, size, r, g, b
+var ITEMS_PER_POINT = 4;  // x, y, size, color
 
-import makeNodeProgram from './makePointsProgram';
+import makePointsProgram from './makePointsProgram';
 import Element from '../Element';
 import Color from '../Color';
 import PointAccessor from './PointAccessor';
@@ -11,19 +11,23 @@ class PointCollection extends Element {
     this.type = 'PointCollection';
 
     // TODO: Not sure I like this too much. But otherwise how can I track interactivity?
-    this.pointsAccessor = [];
+    // this.pointsAccessor = [];
 
     this.capacity = capacity;
-    this.pointsBuffer = new Float32Array(capacity * ITEMS_PER_POINT);
+    const bytesPerElement = 4;
+    this.itemsPerPoint = 4;
+    this.buffer = new ArrayBuffer(capacity * this.itemsPerPoint * bytesPerElement)
+    this.pointsBuffer = new Float32Array(this.buffer);
+    this.colorsBuffer = new Uint32Array(this.buffer);
     this.count = 0;
     this._program = null;
-    this.color = new Color(1, 1, 1, 1);
+    this.color = 16711680;
     this.size = 1;
   }
 
   draw(gl, screen) {
     if (!this._program) {
-      this._program = makeNodeProgram(gl, this.pointsBuffer);
+      this._program = makePointsProgram(gl, this);
     }
 
     this._program.draw(this.worldTransform, screen, this.count);
@@ -42,14 +46,13 @@ class PointCollection extends Element {
     if (this.count >= this.capacity)  {
       this._extendArray();
     }
-    let pointsBuffer = this.pointsBuffer;
-    let internalNodeId = this.count;
-    let offset = internalNodeId * ITEMS_PER_POINT;
-    let pointAccessor = new PointAccessor(pointsBuffer, offset, point.color || this.color, data);
+    // const internalNodeId = this.count;
+    const offset = this.count * ITEMS_PER_POINT;
+    let pointAccessor = new PointAccessor(this, offset, data);
 
-    this.pointsAccessor.push(pointAccessor);
+    // this.pointsAccessor.push(pointAccessor);
 
-    pointAccessor.update(point, this)
+    pointAccessor.update(point)
 
     this.count += 1;
     return pointAccessor
